@@ -46,10 +46,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     List.of()
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            filterChain.doFilter(request, response);
         } catch (JwtException | IllegalArgumentException exception) {
             SecurityContextHolder.clearContext();
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token");
+            return;
         }
+        filterChain.doFilter(request, response);
     }
 }

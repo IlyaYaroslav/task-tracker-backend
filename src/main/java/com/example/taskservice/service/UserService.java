@@ -1,0 +1,134 @@
+package com.example.taskservice.service;
+
+import com.example.taskservice.dto.request.UserLoginRequestDto;
+import com.example.taskservice.dto.request.UserRegisterRequestDto;
+import com.example.taskservice.dto.request.UserUpdateNameRequestDto;
+import com.example.taskservice.dto.request.UserUpdatePasswordRequestDto;
+import com.example.taskservice.dto.response.UserLogInResponseDto;
+import com.example.taskservice.dto.response.UserRegisterResponseDto;
+import com.example.taskservice.dto.response.user.UserResponseSummaryDto;
+import com.example.taskservice.dto.response.UserSummaryResponseDto;
+import com.example.taskservice.dto.response.user.UserUpdatePasswordResponseDto;
+import com.example.taskservice.dto.response.user.UserUploadProfilePictureResponseDto;
+import com.example.taskservice.entity.User;
+import com.example.taskservice.config.security.JwtService;
+import com.example.taskservice.exception.PasswordIncorrectException;
+import com.example.taskservice.exception.user.EmailNotUniqueException;
+import com.example.taskservice.exception.user.UserBadCredentialsException;
+import com.example.taskservice.exception.user.UserNotFoundException;
+import com.example.taskservice.mapper.UserMapper;
+import com.example.taskservice.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passEncoder;
+    private final JwtService jwtService;
+    private final FileStorageService fileStorageService;
+
+    @Transactional
+    public UserRegisterResponseDto register(UserRegisterRequestDto userCreate) {
+        if (userRepository.existsByEmail(userCreate.email())) {
+            throw new EmailNotUniqueException(String.format("Email: %s is not unique", userCreate.email()));
+        }
+
+        User user = userMapper.toEntity(userCreate);
+        user.setPassword(passEncoder.encode(userCreate.password()));
+        userRepository.save(user);
+
+        return userMapper.toRegisterResponseDto(user, jwtService.generateToken(user));
+    }
+
+    public UserLogInResponseDto logIn(UserLoginRequestDto userLoginRequest) {
+        User user = userRepository.findByEmail(userLoginRequest.email())
+                .orElseThrow(() -> new UserBadCredentialsException("User`s credentials are incorrect"));
+
+        if (!passEncoder.matches(userLoginRequest.password(), user.getPassword())) {
+            throw new UserBadCredentialsException("User`s credentials are incorrect");
+        }
+
+        return userMapper.toLoginResponseDto(user, jwtService.generateToken(user));
+    }
+
+    public UserResponseSummaryDto getUserInfo(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
+
+
+        String profilePicturePresignedUrl = fileStorageService.getPresignedUrl(user.getProfilePictureObjectName());
+        return userMapper.toUserResponseSummaryDto(user, profilePicturePresignedUrl);
+    }
+
+    @Transactional
+    public UserSummaryResponseDto updateNames(UUID userId, UserUpdateNameRequestDto userUpdateNameRequestDto) {
+        User user = findUser(userId);
+
+        if (userUpdateNameRequestDto.newFirstName() != null) {
+            user.setFirstName(userUpdateNameRequestDto.newFirstName());
+        }
+        if (userUpdateNameRequestDto.newLastName() != null) {
+            user.setLastName(
+                    userUpdateNameRequestDto.newLastName().isBlank()
+                            ? null
+                            : userUpdateNameRequestDto.newLastName()
+            );
+        }
+
+        return new UserSummaryResponseDto(user.getId(), user.getFirstName(), user.getLastName());
+    }
+
+    @Transactional
+    public UserUploadProfilePictureResponseDto uploadPhoto(UUID userId, byte[] file, String contentType) {
+        User user = findUser(userId);
+        String oldObjectName = user.getProfilePictureObjectName();
+        String newObjectName = fileStorageService.upload(file, contentType);
+        user.setProfilePictureObjectName(newObjectName);
+
+        if (oldObjectName != null) {
+            fileStorageService.delete(oldObjectName);
+        }
+
+        return new UserUploadProfilePictureResponseDto(
+                user.getId(),
+                fileStorageService.getPresignedUrl(newObjectName)
+        );
+    }
+
+    @Transactional
+    public void deleteProfilePicture(UUID id) {
+        User user = findUser(id);
+        String objectName = user.getProfilePictureObjectName();
+        fileStorageService.delete(objectName);
+        user.setProfilePictureObjectName(null);
+    }
+
+    @Transactional
+    public UserUpdatePasswordResponseDto updatePassword(UUID userId, UserUpdatePasswordRequestDto userUpdateRequest) {
+        User user = findUser(userId);
+        if (!passEncoder.matches(userUpdateRequest.oldPassword(), user.getPassword())) {
+            throw new PasswordIncorrectException("");
+        }
+
+        user.setPassword(passEncoder.encode(userUpdateRequest.newPassword()));
+        return new UserUpdatePasswordResponseDto(user.getId());
+    }
+
+    private User findUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + userId));
+    }
+
+    public List<UserSummaryResponseDto> getAllUsers() {
+        return userMapper.toSummaryDto(userRepository.findAll());
+    }
+}

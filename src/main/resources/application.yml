@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /api/task-service
 
 spring:
   application:
@@ -13,11 +15,18 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-  mvc:
-    servlet:
-      path: /api/task-service
 
 security:
   jwt:
     secret: 823740589273405892734058972340857203485702384720384702389475089133652358
+    expiration-ms: ${JWT_EXPIRATION_MS:3000600000}
+
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  public-endpoint: ${MINIO_PUBLIC_ENDPOINT:${minio.endpoint}}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket: ${MINIO_BUCKET:user-files}
+  region: ${MINIO_REGION:us-east-1}
+  initialize-bucket: ${MINIO_INITIALIZE_BUCKET:false}
 

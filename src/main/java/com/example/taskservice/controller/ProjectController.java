@@ -4,6 +4,7 @@ import com.example.taskservice.dto.request.ProjectCreateRequestDto;
 import com.example.taskservice.dto.response.ProjectCreateResponseDto;
 import com.example.taskservice.dto.response.ProjectResponseDto;
 import com.example.taskservice.service.ProjectService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,11 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
 
 import java.util.UUID;
 
@@ -37,13 +34,11 @@ public class ProjectController {
 
         return ResponseEntity.status(201)
                 .body(project);
-        
-        
     }
 
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<Void> delete(@PathVariable UUID projectId) {
-        projectService.deleteProjectById(projectId);
+    public ResponseEntity<Void> delete(@PathVariable UUID projectId, @AuthenticationPrincipal UUID ownerId) {
+        projectService.deleteProjectById(projectId, ownerId);
         return ResponseEntity.status(204).build();
     }
 

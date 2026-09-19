@@ -8,10 +8,14 @@ import com.example.taskservice.mapper.ProjectMapper;
 import com.example.taskservice.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -47,8 +51,14 @@ public class ProjectService {
         return projectMapper.toDto(projectRepository.save(project));
     }
 
-    public void deleteProjectById(UUID projectId) {
-        projectRepository.deleteById(projectId);
+    @Transactional
+    public void deleteProjectById(UUID projectId, UUID ownerId) {
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        if (!Objects.equals(project.getOwnerId(), ownerId)) {
+            throw new AccessDeniedException("Only the owner can delete this project");
+        }
+        projectRepository.delete(project);
     }
 
     public ProjectCreateResponseDto getProjectByUserId(UUID projectId) {

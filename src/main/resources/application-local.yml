@@ -5,6 +5,5 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
 
-services:
-  user-service:
-    url: ${USER_SERVICE_URL:http://localhost:8081/api/user-service}
+minio:
+  initialize-bucket: ${MINIO_INITIALIZE_BUCKET:true}

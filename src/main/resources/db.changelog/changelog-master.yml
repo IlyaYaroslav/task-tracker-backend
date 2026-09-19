@@ -1,5 +1,7 @@
 databaseChangeLog:
   - include:
+      file: db/changelog/changelog-master.yml
+  - include:
       file: changes/001-create-project.yml
       relativeToChangelogFile: true
   - include:
