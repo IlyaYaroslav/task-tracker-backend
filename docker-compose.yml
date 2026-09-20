@@ -15,5 +15,30 @@ services:
     volumes:
       - task_postgres_data:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - task_minio_data:/data
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: task-kafka
+    restart: always
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - "9092:9092"
+
 volumes:
   task_postgres_data:
+  task_minio_data:
+

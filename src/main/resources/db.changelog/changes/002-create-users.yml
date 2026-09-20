@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-project-fields-and-members
+      author: Sss330
+      changes:
+        - sqlFile:
+            path: ../sql/002-create-users.sql
+            relativeToChangelogFile: true

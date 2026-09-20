@@ -8,7 +8,6 @@ import java.util.UUID;
 public record UserResponseSummaryDto(
         UUID id,
         String email,
-        UserRole role,
         String firstName,
         String lastName,
         String profilePicturePresignedUrl

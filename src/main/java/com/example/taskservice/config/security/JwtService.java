@@ -41,7 +41,6 @@ public class JwtService {
                 .setSubject(user.getId().toString())
                 .setHeaderParam("typ", "JWT")
                 .claim("email", user.getEmail())
-                .claim("role", user.getRole())
                 .claim("first_name", user.getFirstName())
                 .claim("last_name", user.getLastName())
                 .setIssuedAt(now)

@@ -11,6 +11,8 @@ import java.util.UUID;
 
 @Builder
 public record ProjectCreateRequestDto(
+        UUID userId,
+
         @NotBlank @Size(max = 100)
         String name,
         @Size(max = 2000)

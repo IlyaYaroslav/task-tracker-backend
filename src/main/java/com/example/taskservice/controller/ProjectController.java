@@ -30,7 +30,7 @@ public class ProjectController {
             @Valid @RequestBody ProjectCreateRequestDto projectCreateRequestDto,
             @AuthenticationPrincipal UUID ownerId
     ) {
-        ProjectCreateResponseDto project = projectService.create(projectCreateRequestDto, ownerId);
+        ProjectCreateResponseDto project = projectService.create(projectCreateRequestDto);
 
         return ResponseEntity.status(201)
                 .body(project);

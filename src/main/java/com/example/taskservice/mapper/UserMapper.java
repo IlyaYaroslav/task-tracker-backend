@@ -15,7 +15,6 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
 
-    @Mapping(target = "role", constant = "USER")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "firstName", source = "name")
     @Mapping(target = "lastName", ignore = true)

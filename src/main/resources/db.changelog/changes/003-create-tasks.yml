@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-tasks
+      author: Sss330
+      changes:
+        - sqlFile:
+            path: ../sql/003-create-tasks.sql
+            relativeToChangelogFile: true
