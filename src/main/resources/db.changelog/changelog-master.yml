@@ -5,7 +5,9 @@ databaseChangeLog:
   - include:
       file: /changes/003-create-tasks.yml
       relativeToChangelogFile: true
-
   - include:
       file: changes/001-create-projects.yml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/004-align-entity-schema.yml
       relativeToChangelogFile: true

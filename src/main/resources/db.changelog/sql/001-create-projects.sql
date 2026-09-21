@@ -6,7 +6,7 @@ CREATE TABLE projects
     owner_id    UUID REFERENCES users(id) ON DELETE CASCADE,
     task_id     UUID references tasks(id),
     created_at  TIMESTAMP,
-    update_at   TIMESTAMP
+    updated_at   TIMESTAMP
 );
 
 CREATE INDEX IX_Projects ON projects (name, owner_id, task_id);

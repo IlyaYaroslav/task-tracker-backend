@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -32,12 +33,16 @@ public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false)
     private UUID id;
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "description", length = 2000)
+    @Column(name = "project_key", length = 10, unique = true)
+    private String key;
+
+    @Column(name = "description", length = 2000, nullable = false)
     private String description;
 
     @OneToOne
@@ -45,6 +50,9 @@ public class Project {
     private User owner;
 
     @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "projects_tasks",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "task_id", unique = true))
     private List<Task> tasks;
 
     @CreationTimestamp
