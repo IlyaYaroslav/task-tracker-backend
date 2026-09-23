@@ -1,11 +1,13 @@
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     id                          UUID PRIMARY KEY,
-    first_name                  VARCHAR(800)  NOT NULL,
-    last_name                   VARCHAR(700)  NOT NULL,
-    profile_picture_object_name VARCHAR(500),
-    user_password               VARCHAR(2000) NOT NULL,
-    email                       VARCHAR(255)  NOT NULL
+    first_name                  VARCHAR(100) NOT NULL,
+    last_name                   VARCHAR(100),
+    profile_picture_object_name VARCHAR(255),
+    password                    VARCHAR(250) NOT NULL,
+    email                       VARCHAR(200) NOT NULL,
+
+    CONSTRAINT UC_User_Email UNIQUE (email)
 );
 
 CREATE INDEX IX_USERS ON users (email, first_name, last_name);
