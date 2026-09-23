@@ -1,5 +1,11 @@
 databaseChangeLog:
   - include:
+      file: db.changelog/changes/004-create-user-table.yml
+  - include:
+      file: db.changelog/changes/006-user-profile.yml
+  - include:
+      file: db.changelog/changes/005-last-name-default.yml
+  - include:
       file: changes/002-create-users.yml
       relativeToChangelogFile: true
   - include:

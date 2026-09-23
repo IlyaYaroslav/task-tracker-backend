@@ -6,6 +6,3 @@ databaseChangeLog:
         - sqlFile:
             path: ../sql/001-create-projects.sql
             relativeToChangelogFile: true
-
-
-

@@ -1,7 +1,7 @@
 CREATE TABLE projects
 (
     id          UUID primary key,
-    name        VARCHAR(100),
+    name        VARCHAR(100) NOT NULL ,
     description VARCHAR(200),
     owner_id    UUID REFERENCES users(id) ON DELETE CASCADE,
     task_id     UUID references tasks(id),
